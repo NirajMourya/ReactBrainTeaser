@@ -46,10 +46,10 @@ export default function Summary({userAnswers})
                                 cssClass += ' wrong'
                             }
 
-                            return (<li>
-                                    <h3>{index+1}</h3>
-                                    <p className='question'>{QUESTIONS[index].text}</p>
-                                    <p className={cssClass} >{answer ?? 'Skipped'}</p>
+                            return (<li key={index}>
+                                        <h3>{index+1}</h3>
+                                        <p className='question'>{QUESTIONS[index].text}</p>
+                                        <p className={cssClass} >{answer ?? 'Skipped'}</p>
                                     </li>)
                         })
                     }
