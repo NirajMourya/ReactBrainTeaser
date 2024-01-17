@@ -1,20 +1,37 @@
 import { useCallback, useState } from "react";
 import QUESTIONS from "../questions"
 import quizCompleteImg from '../assets/quiz-complete.png';
-import QuestionTimer from "./QuestionTimer";
+import Questions from "./Questions";
+
 
 export default function Quiz()
 {
+    
     const [userAnswers,setUserAnswers] = useState([]);
-    const activeQuestionIndex = userAnswers.length;
+    const [answerState, setAnswerState] = useState('');
+    const activeQuestionIndex = answerState === '' ? userAnswers.length : userAnswers.length - 1;
     const quizIsCompleted = activeQuestionIndex === QUESTIONS.length;
     
     const handleSelectAnswer = useCallback(function handleSelectAnswer(selectedAnswer)
     {
+        setAnswerState('answered')
         setUserAnswers((prevAnswers) => {
             return [...prevAnswers, selectedAnswer]
         })
-    },[]);
+
+        setTimeout(() => {
+            if(selectedAnswer === QUESTIONS[activeQuestionIndex].answers[0])
+            {
+                setAnswerState('correct')
+            }
+            else{
+                setAnswerState('wrong');
+            }
+            setTimeout(() =>{
+                  setAnswerState('')   
+            },2000)
+        },1000)
+    },[activeQuestionIndex]);
     
     const onTimeout = useCallback(() => handleSelectAnswer(null),[handleSelectAnswer])
     if( quizIsCompleted )
@@ -26,27 +43,18 @@ export default function Quiz()
             </div>
         )
     }
-
-    const shuffledAnswers = [...QUESTIONS[activeQuestionIndex].answers]
-    shuffledAnswers.sort((a,b) =>  Math.random() - 0.5);
-
+    
     return (
         <div id="quiz">
-        <div id="question">
-        <QuestionTimer timeout={10000} onTimeout={onTimeout} key={activeQuestionIndex} />
-        <h2>{QUESTIONS[activeQuestionIndex].text}</h2>
-        <ul id="answers">
-            {
-                shuffledAnswers.map((answer) => (
-                   <li key={answer} className="answer">
-                      <button onClick={() => handleSelectAnswer(activeQuestionIndex)}>
-                         {answer}
-                      </button>
-                   </li>
-                ))
-            }
-        </ul>
-        </div>
+            <Questions 
+              key={activeQuestionIndex}
+              questionText={QUESTIONS[activeQuestionIndex].text}
+              answers={QUESTIONS[activeQuestionIndex].answers} 
+              onSelectAnswer={handleSelectAnswer}
+              selectedAnswer={userAnswers[userAnswers.length - 1]} 
+              answerState={answerState}
+              onTimeout={onTimeout}
+            />
         </div>
     );
 }
